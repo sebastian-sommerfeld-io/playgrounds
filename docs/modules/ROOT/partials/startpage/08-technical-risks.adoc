@@ -1,0 +1,8 @@
+== Risks and Technical Debts
+Scale for Probability and Impact: Low, Medium and High
+
+[cols="^1,2,7a,1,1,4a", options="header"]
+|===
+|# |Title |Description |Probability |Impact |Response
+|{counter:usage} |... |... |... |... |...
+|===

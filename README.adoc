@@ -1,0 +1,13 @@
+= Vagrantboxes
+Sebastian Sommerfeld <sebastian@sommerfeld.io>
+:project-name: vagrantboxes
+:url-project: https://github.com/sebastian-sommerfeld-io/{project-name}
+
+Vagrantboxes for playground or proof of concept purposes.
+
+[cols="1,4", options="header"]
+|===
+|What |Where to find
+|Repository |{url-project}
+|Documentation |https://www.sommerfeld.io/docs/{project-name}-docs/main
+|===

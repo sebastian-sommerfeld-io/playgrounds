@@ -1,0 +1,2 @@
+//== Why is this project called Kobol?
+//This project and my local workstation are named after link:https://en.battlestarwikiclone.org/wiki/Kobol_(RDM)[Kobol] (the link:https://galactica.fandom.com/wiki/Lost_Planet_of_the_Gods[Lost Planet of the Gods]) from link:https://en.battlestarwikiclone.org/wiki/Battlestar_Galactica_(TRS)[Battlestar Galactica].
