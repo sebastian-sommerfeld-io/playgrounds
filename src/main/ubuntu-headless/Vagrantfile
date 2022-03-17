@@ -1,0 +1,21 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+IMAGE_NAME = "ubuntu/impish64" # impish = 21.10 | bento/ubuntu-21.10
+HOSTNAME = "ubuntu-headless"
+
+Vagrant.configure(2) do |config|
+    config.vm.box = IMAGE_NAME
+    config.vm.hostname = HOSTNAME
+
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 2048
+        v.cpus = 2
+        v.customize ["modifyvm", :id, "--groups", "/vagrantboxes"]
+        v.name = HOSTNAME
+    end
+
+    config.vm.provision "shell", path: "provision/configure.sh"
+    config.vm.provision "shell", path: "provision/install/update-upgrade.sh"
+    config.vm.provision "shell", path: "provision/install/basic-packages.sh"
+end

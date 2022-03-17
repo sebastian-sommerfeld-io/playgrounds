@@ -1,0 +1,19 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+IMAGE_NAME = "alpine/alpine64"
+HOSTNAME = "alpine64"
+
+Vagrant.configure("2") do |config|
+    config.vm.box = IMAGE_NAME
+    config.vm.hostname = HOSTNAME
+
+    if Vagrant.has_plugin?("vagrant-vbguest")
+        config.vbguest.auto_update = false
+    end
+
+    config.vm.provider "virtualbox" do |v|
+        v.customize ["modifyvm", :id, "--groups", "/vagrantboxes"]
+        v.name = HOSTNAME
+    end
+end
