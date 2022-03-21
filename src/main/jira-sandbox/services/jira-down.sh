@@ -15,7 +15,7 @@ JIRA_BASE_DIR="$home/jira"
 echo "[INFO] Jira Stop"
 
 (
-  cd "$JIRA_BASE_DIR/jira-installation/bin" || exit
+  cd "$JIRA_BASE_DIR/jira-runtime/bin" || exit
   bash ./stop-jira.sh
 )
 
