@@ -1,0 +1,110 @@
+= Jira Sandbox
+Sebastian Sommerfeld <sebastian@sommerfeld.io>
+
+A Jira Sandbox system for development and testing purposes.
+
+== Requirements Overview
+. Lorem
+. ipsum
+. dolor
+
+== Quality Goals
+. Lorem
+
+== Install
+In order to run this project, the following dependencies must be met:
+
+. Install Virtualbox and Vagrant
+.. Install the Vagrant Plugin "vagrant-vbguest" using `vagrant plugin install vagrant-vbguest`
+
+== Usage
+[cols="1,4", options="header"]
+|===
+|Category |Info
+|Box Image |bento/fedora-34
+|Provider |Virtualbox
+|VM-Name & Hostname |jira-sandbox
+|User (Password) |vagrant (vagrant)
+|Port Range for this VM |8080
+|System Requirements |CPUs = 1, RAM = 4096 MB
+|===
+
+=== Use this Vagrantbox
+
+. Start the Vagrantbox using `vagrant up` from the directory containing the Vagrantfile
+. Start and stop the jira instance by using `src/main/jira-sandbox/services/jira-up.sh` and `src/main/jira-sandbox/services/jira-down.sh` from inside the Vagrantbox (get inside by using `vagrant ssh` from the directory containing the Vagrantfile)
+. Shutdown the Vagrantbox using `vagrant halt` from the directory containing the Vagrantfile
+. Remove the Vagrantbox using `vagrant destroy -f` from the directory containing the Vagrantfile
+
+=== Provisioning
+This Vagrantbox is provisioned on (initial) startup. To provision the Vagrantbox again, run vagrant up --provision on a stopped environment and vagrant provision or vagrant reload --provision on a running environment.
+
+CAUTION: Typically this Jira Sandbox uses an evaluation license which expires after 30 days.
+
+== Building Block View / Whitebox Overall System
+The actual Jira Setup follows the Atlassian Guide "link:https://confluence.atlassian.com/adminjiraserver0817/installing-jira-applications-on-linux-from-archive-file-1071815627.html[Installing Jira applications on Linux from Archive File]".
+
+* Jira is run by user "vagrant"
+* Jira Installation Directory = `/home/vagrant/jira/jira-runtime`
+* Jira Home Directory = `/home/vagrant/jira/jira-home` (this is where Jira application data like logs, search indexes and files will be stored)
+* Jira Database = H2DB
+
+[plantuml, rendered-plantuml-image, svg]
+----
+@startuml
+
+skinparam linetype ortho
+skinparam monochrome false
+skinparam componentStyle uml2
+skinparam backgroundColor transparent
+skinparam ArrowColor black
+skinparam CollectionsBorderColor black
+skinparam ComponentBorderColor black
+skinparam ComponentBackgroundColor #FEFECE
+skinparam NoteBorderColor Grey
+skinparam NoteBackgroundColor #fdfdfd
+skinparam defaultTextAlignment center
+skinparam activity {
+  FontName Ubuntu
+}
+
+component vm as "jira-sandbox" <<vagrantbox>> #fff {
+    component g as "Git Client"
+    component j as "OpenJDK 17"
+    component js as "Jira-Software Instance"
+    note right of js: Port inside VM 8080\nForwarded to host 8080
+}
+
+@enduml
+----
+
+* The setup
+** The Jira setup uses a H2DB. So there are no dependencies to the outside other than an internet connection to download the Jira Software archive from the Atlassian website.
+** To set up a new Jira Instance just run `src/main/jira-sandbox/provision/jira-setup.sh`. Make sure you first delete the existing Jira Instance or copy / archive it to another location (and then delete the existing instance). By archiving the instance you can restore this setup rather easily.
+** For a complete setup it is needed to go through the complete Jira Setup Wizard (via Browser) -> So the Jira Setup ist not completely Infrastructure as Code.
+* Jira is not run as a service -> From Atlassian Guide "link:https://confluence.atlassian.com/adminjiraserver0817/installing-jira-applications-on-linux-from-archive-file-1071815627.html[Installing Jira applications on Linux from Archive File]"
+** You will start your Jira application by running the start-jira.sh file in your Jira installation directory.
+** We recommend creating a dedicated user to run Jira. This user must have full read, write and execute access to the installation directory and home directory.
+** Jira will need to be restarted manually if your server is restarted.
+
+=== Services
+The following services are up and running when the Vagrantbox is started (and provisioned).
+
+[cols="2,4,3", options="header"]
+|===
+|Service |URL|User (Password)
+|Jira Software |http://localhost:8080 (forwarded from 8080 in Vagrantfile) |none (the setup wizard creates the initial admin user)
+|===
+
+== Architecture Decisions
+. This Vagrantbox is just a proof-of-concept and will turn into a dedicated project sometime in the future.
+. This setup does not use Docker because the target environment does not properly support Docker. So when porting this configuration to the target environment we avoid migrating the setup from Docker to non-Docker.
+
+== Risks and Technical Debts
+Scale for Probability and Impact: Low, Medium and High
+
+[cols="1,3,5,1,1,4", options="header"]
+|===
+|# |Title |Description |Probability |Impact |Response
+|{counter:usage} |none |none |none |none |none
+|===
