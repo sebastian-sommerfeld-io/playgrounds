@@ -13,11 +13,6 @@ Vagrant.configure(2) do |config|
         jira.vm.box = IMAGE_NAME
         jira.vm.hostname = HOSTNAME
 
-        # https://www.puppeteers.net/blog/fixing-vagrant-vbguest-for-the-centos-7-base-box/
-        if Vagrant.has_plugin?("vagrant-vbguest")
-            jira.vbguest.installer_options = { allow_kernel_upgrade: true }
-        end
-
         jira.vm.provider "virtualbox" do |v|
             v.memory = 1024*4
             v.cpus = 1
