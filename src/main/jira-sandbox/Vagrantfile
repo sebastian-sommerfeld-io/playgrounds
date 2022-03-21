@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-IMAGE_NAME = "centos/7"
+IMAGE_NAME = "bento/fedora-34"
 HOSTNAME = "jira-sandbox"
 
 Vagrant.configure(2) do |config|
@@ -18,10 +18,6 @@ Vagrant.configure(2) do |config|
             jira.vbguest.installer_options = { allow_kernel_upgrade: true }
         end
 
-        if Vagrant.has_plugin?("vagrant-cachier")
-            jira.cache.scope = :box # Configure cached packages to be shared between instances of the same base box
-        end
-
         jira.vm.provider "virtualbox" do |v|
             v.memory = 1024*4
             v.cpus = 1
@@ -34,10 +30,11 @@ Vagrant.configure(2) do |config|
         jira.vm.provision "shell", path: "provision/configure.sh"
         jira.vm.provision "shell", path: "provision/install/update-upgrade.sh"
         jira.vm.provision "shell", path: "provision/install/git.sh"
+        jira.vm.provision "shell", path: "provision/install/java.sh"
         jira.vm.provision "shell", path: "provision/install/zip.sh"
         jira.vm.provision "shell", path: "provision/jira-setup.sh"
         jira.vm.provision "shell", path: "services/jira-up.sh"
 
-        jira.vm.network "forwarded_port", host: 8888, guest: 8080 # jira
+        jira.vm.network "forwarded_port", host: 8080, guest: 8080 # jira
     end
 end

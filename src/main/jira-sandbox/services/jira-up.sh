@@ -8,5 +8,15 @@
 #
 # The script does not accept any parameters.
 
+
+home="/home/vagrant"
+JIRA_BASE_DIR="$home/jira"
+
 echo "[INFO] Jira Start"
+
+(
+  cd "$JIRA_BASE_DIR/jira-installation/bin" || exit
+  bash ./start-jira.sh
+)
+
 echo "[DONE] Jira Start complete"

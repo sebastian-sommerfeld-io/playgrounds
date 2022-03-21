@@ -8,5 +8,15 @@
 #
 # The script does not accept any parameters.
 
+
+home="/home/vagrant"
+JIRA_BASE_DIR="$home/jira"
+
 echo "[INFO] Jira Stop"
+
+(
+  cd "$JIRA_BASE_DIR/jira-installation/bin" || exit
+  bash ./stop-jira.sh
+)
+
 echo "[DONE] Jira Stop complete"
