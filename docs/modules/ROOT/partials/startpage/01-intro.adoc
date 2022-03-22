@@ -7,5 +7,5 @@ Vagrantboxes for playground or proof of concept purposes.
 |===
 |What |Where to find
 |Repository |{url-project}
-|Documentation |https://www.sommerfeld.io/docs/{project-name}-docs/main
+|Documentation |https://docs.sommerfeld.io/{project-name}-docs/main
 |===
