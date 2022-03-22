@@ -25,6 +25,7 @@ Vagrant.configure(2) do |config|
         jira.vm.provision "shell", path: "provision/configure.sh"
         jira.vm.provision "shell", path: "provision/install/update-upgrade.sh"
         jira.vm.provision "shell", path: "provision/install/git.sh"
+        jira.vm.provision "shell", path: "provision/install/htop.sh"
         jira.vm.provision "shell", path: "provision/install/java.sh"
         jira.vm.provision "shell", path: "provision/install/zip.sh"
         jira.vm.provision "shell", path: "provision/jira-setup.sh"
