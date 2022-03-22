@@ -4,12 +4,13 @@ Sebastian Sommerfeld <sebastian@sommerfeld.io>
 A Jira Sandbox system for development and testing purposes.
 
 == Requirements Overview
-. Lorem
-. ipsum
-. dolor
+. The Jira installation must be done by a script so the setup is reproducible at any time.
+. No Reverse Proxy needed -> so there is no need for Apache or nginx
+. No HTTPS needed
+. No need to run multiple Jira instances in parallel
 
 == Quality Goals
-. Lorem
+. There is no need for the whole setup to be Infrastructure as Code. Setup stepts inside Jira can be done manually (through the web ui). The setup of Jira itself (application server, etc) should follow an Infrastructure as Code approach.
 
 == Install
 In order to run this project, the following dependencies must be met:
