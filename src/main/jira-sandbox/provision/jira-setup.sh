@@ -51,6 +51,15 @@ mkdir -p "$JIRA_BASE_DIR"
   old="jira.home ="
   new="jira.home = $JIRA_BASE_DIR/jira-home"
   sed -i "s|$old|$new|g" "$propertiesFile"
+
+  envFile="jira-runtime/bin/setenv.sh"
+  echo "[INFO] Adjust Memory Settings in $envFile"
+  old='JVM_MINIMUM_MEMORY="384m"'
+  new='JVM_MINIMUM_MEMORY="1024m"'
+  sed -i "s|$old|$new|g" "$envFile"
+  old='JVM_MAXIMUM_MEMORY="2048m"'
+  new='JVM_MAXIMUM_MEMORY="3072m"'
+  sed -i "s|$old|$new|g" "$envFile"
 )
 
 echo "[DONE] Jira Setup complete"

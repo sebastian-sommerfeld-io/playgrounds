@@ -82,6 +82,7 @@ component vm as "jira-sandbox" <<vagrantbox>> #fff {
 * The setup
 ** The Jira setup uses a H2DB. So there are no dependencies to the outside other than an internet connection to download the Jira Software archive from the Atlassian website.
 ** To set up a new Jira Instance just run `src/main/jira-sandbox/provision/jira-setup.sh`. Make sure you first delete the existing Jira Instance or copy / archive it to another location (and then delete the existing instance). By archiving the instance you can restore this setup rather easily.
+*** This setup step increases the default memory settings for Jira (following the information from link:https://confluence.atlassian.com/adminjiraserver/increasing-jira-application-memory-938847654.html[https://confluence.atlassian.com/adminjiraserver0817/increasing-jira-application-memory-1071816583.html])
 ** For a complete setup it is needed to go through the complete Jira Setup Wizard (via Browser) -> So the Jira Setup ist not completely Infrastructure as Code.
 * Jira is not run as a service -> From Atlassian Guide "link:https://confluence.atlassian.com/adminjiraserver0817/installing-jira-applications-on-linux-from-archive-file-1071815627.html[Installing Jira applications on Linux from Archive File]"
 ** You will start your Jira application by running the start-jira.sh file in your Jira installation directory.
