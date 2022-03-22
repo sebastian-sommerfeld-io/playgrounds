@@ -1,5 +1,5 @@
 #!/bin/bash
-# @file install-git.sh
+# @file git.sh
 # @brief Install and configure git.
 #
 # @description The script installs and configures git.

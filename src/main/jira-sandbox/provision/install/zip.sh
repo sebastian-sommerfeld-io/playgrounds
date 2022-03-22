@@ -1,5 +1,5 @@
 #!/bin/bash
-# @file install-zip.sh
+# @file zip.sh
 # @brief Install zip and unzip.
 #
 # @description The script installs ``zip`` and ``unzip``.

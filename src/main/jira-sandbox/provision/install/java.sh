@@ -1,5 +1,5 @@
 #!/bin/bash
-# @file install-java.sh
+# @file java.sh
 # @brief Install OpenJDK 11.
 #
 # @description The script installs OpenJDK 11.
