@@ -1,6 +1,6 @@
 ---
 name: playgrounds-docs
-title: playgrounds Docs
+title: Playgrounds Docs
 version: main
 start_page: ROOT:index.adoc
 nav:
