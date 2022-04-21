@@ -17,10 +17,13 @@ ls:
   Vagrantfile: PascalCase
   Jenkinsfile: PascalCase
 
+  .folderslint: lowercase
   .gitignore: lowercase
   .gitkeep: lowercase
+  .yamllint: lowercase
 
 ignore:
+  - .ls-lint.yml
   - .idea
   - .git
   - node_modules
