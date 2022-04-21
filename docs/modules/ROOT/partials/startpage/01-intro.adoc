@@ -1,7 +1,7 @@
-:project-name: vagrantboxes
+:project-name: playgrounds
 :url-project: https://github.com/sebastian-sommerfeld-io/{project-name}
 
-Vagrantboxes for playground or proof of concept purposes.
+Playground and Proof-of-Concept environments in Vagrantboxes and/or Docker containers for testing, learning and evaluation purposes.
 
 [cols="1,4", options="header"]
 |===

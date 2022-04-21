@@ -1,6 +1,6 @@
 ---
-name: vagrantboxes-docs
-title: Vagrantboxes Docs
+name: playgrounds-docs
+title: playgrounds Docs
 version: main
 start_page: ROOT:index.adoc
 nav:
