@@ -23,9 +23,24 @@ done
 
 echo -e "$LOG_INFO ------------------------------------------------------------------------"
 echo -e "$LOG_INFO Run linter containers"
+echo -e "$LOG_INFO yamllint"
 docker run -it --rm --volume "$(pwd):/data" --workdir "/data" cytopia/yamllint:latest .
+echo -e "$LOG_INFO shellcheck"
 docker run -it --rm --volume "$(pwd):/data" --workdir "/data" koalaman/shellcheck:latest ./*.sh
-#docker run -i  --rm hadolint/hadolint < Dockerfile
+
+#echo -e "$LOG_INFO lint Dockerfile"
+#(
+#  cd src/main/workstations/kobol/vagrantboxes/pegasus/docker/images || exit
+#
+#  for dir in */ ; do
+#    image=${dir%*/}
+#    echo -e "$LOG_INFO Validate $image/Dockerfile"
+#    docker run -i  --rm hadolint/hadolint < "$image/Dockerfile"
+#  done
+#)
+
+echo -e "$LOG_INFO lslint"
 docker run -it --rm --volume "$(pwd):/data" --workdir "/data" lslintorg/ls-lint:1.11.0
+echo -e "$LOG_INFO folderslint"
 docker run -i  --rm --volume "$(pwd):$(pwd)" --workdir "$(pwd)" pegasus/folderslint:latest folderslint .
 echo -e "$LOG_INFO ------------------------------------------------------------------------"
