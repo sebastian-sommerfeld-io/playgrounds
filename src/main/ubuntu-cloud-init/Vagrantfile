@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+IMAGE_NAME = "ubuntu/jammy64" # jammy = 22.04
+HOSTNAME = "ubuntu-cloud-init"
+
+Vagrant.configure(2) do |config|
+    config.vm.box = IMAGE_NAME
+    config.vm.hostname = HOSTNAME
+
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 2048
+        v.cpus = 1
+        v.customize ["modifyvm", :id, "--groups", "/vagrantboxes"]
+        v.name = HOSTNAME
+    end
+
+    #config.vm.provision "shell", inline: "cp /vagrant/provision/cloud-init/user-data.yml /etc/cloud/cloud.cfg.d/user-data.yml.cfg"
+    config.vm.cloud_init :user_data, content_type: "text/cloud-config", path: "provision/cloud-init/user-data.yml.cfg"
+
+    config.vm.provision "shell", path: "provision/configure.sh" # -> move to cloud init
+end
