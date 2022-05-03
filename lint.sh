@@ -30,6 +30,7 @@ docker run -it --rm --volume "$(pwd):$(pwd)" --workdir "$(pwd)" pegasus/director
 
 echo -e "$LOG_INFO yamllint"
 docker run -it --rm --volume "$(pwd):/data" --workdir "/data" cytopia/yamllint:latest .
+docker run -it --rm --volume "$(pwd):/data" --workdir "/data" cytopia/yamllint:latest src/main/ubuntu-cloud-init/provision/cloud-init/user-data.yml.cfg
 
 echo -e "$LOG_INFO jsonlint"
 docker run -it --rm --volume "$(pwd):/data" --workdir "/data" cytopia/jsonlint:latest -i '*node_modules*' "*.json"
