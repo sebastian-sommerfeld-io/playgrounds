@@ -17,6 +17,64 @@ Terraform works by reading configuration files that describe the components that
 
 In this tutorial, you’ll install Terraform and use it to create an infrastructure on DigitalOcean that consists of two Nginx servers that are load balanced by a DigitalOcean Load Balancer. Then, you’ll use Terraform to add a DNS entry on DigitalOcean that points to your Load Balancer. This will help you get started with using Terraform, and give you an idea of how you can use it to manage and deploy a DigitalOcean-based infrastructure that meets your own needs.
 
+=== Building Block View / Whitebox Overall System
+After completing this tutorial the following setup will be in place.
+
+[plantuml, rendered-plantuml-image, svg]
+----
+@startuml
+
+skinparam linetype ortho
+skinparam monochrome false
+skinparam componentStyle uml2
+skinparam backgroundColor transparent
+skinparam ArrowColor black
+skinparam FrameBackgroundColor #fff
+skinparam CollectionsBackgroundColor #fefece
+skinparam CollectionsBorderColor black
+skinparam ComponentBorderColor black
+skinparam ComponentBackgroundColor #fefece
+skinparam RectangleBorderColor black
+skinparam RectangleBackgroundColor #fefece
+skinparam QueueBorderColor black
+skinparam NoteBorderColor Grey
+skinparam NoteBackgroundColor #fff
+skinparam defaultTextAlignment center
+skinparam activity {
+  FontName Ubuntu
+}
+
+rectangle digitalocean {
+    rectangle droplets {
+        component www_1 as "www-1" <<digitalocean_droplet>> {
+            component nginx_1
+        }
+        component www_2 as "www-2" <<digitalocean_droplet>> {
+            component nginx_2
+        }
+    }
+    component domain <<digitalocean_domain>>
+    component loadbalancer <<digitalocean_loadbalancer>>
+}
+
+file url as "playground-digitalocean.test.sommerfeld.io"
+
+rectangle domain_host <<some_service_provider>>
+cloud internet
+
+domain_host -right-> internet
+internet -right-> domain
+domain -right-> loadbalancer
+loadbalancer -> droplets
+
+www_1 -[hidden]down-> www_2
+
+domain_host ~down~ url
+domain ~down~ url
+
+@enduml
+----
+
 == Prerequisites
 To complete this tutorial, you’ll need:
 
@@ -434,3 +492,5 @@ Terraform has many more features, and can work with other providers. Check out t
 The original tutorial is part of the link:https://www.digitalocean.com/community/tutorial_series/how-to-manage-infrastructure-with-terraform[How To Manage Infrastructure with Terraform] series. The series covers a number of Terraform topics, from installing Terraform for the first time to managing complex projects.
 
 Next in the series: link:https://www.digitalocean.com/community/tutorials/how-to-structure-a-terraform-project[How To Structure a Terraform Project]
+
+* DigitalOcean Provider -> https://registry.terraform.io/providers/digitalocean/digitalocean/latest/docs
