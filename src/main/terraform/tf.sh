@@ -2,7 +2,19 @@
 # @file tf.sh
 # @brief Trigger terraform commands for this configuration.
 #
-# @description The script triggers terraform commands for this configuration.
+# @description The script triggers terraform commands for a set of configurations.
+#
+# To apply a configuration for localhost, terraform must be able to start docker containers. Therefore the docker socket
+# from the host is mounted into the container. This way the actual invocation of docker commands is delegated to the
+# host.
+#
+# To apply a configuration for DigitalOcean, the docker container that runs terraform must be able to connect to the
+# remote machines via SSH. Therefore the SSH information from the host are mounted into the container. This way the
+# actual invocation of SSH commands is delegated to the host.
+#
+# ===== Prerequisites
+#
+# . The SSH keypair digitalocean_droplets.key / digitalocean_droplets.key.pub must exsist.
 #
 # ==== Arguments
 #
@@ -15,6 +27,9 @@
 # * https://learn.hashicorp.com/tutorials/terraform/docker-build?in=terraform/docker-get-started
 
 
+STAGE="n/a"
+DIGITAL_OCEAN_DIR="digitalocean"
+
 # @description Wrapper function to encapsulate the terraform docker container. The current working directory is mounted
 # into the container and selected as working directory so that all file are available to terraform. Paths are preserved.
 #
@@ -26,40 +41,23 @@
 # @exitcode 1 If param is missing
 function tf() {
   if [ -z "$1" ]; then
-    echo -e "$LOG_ERROR No command passed to the terraform container"
-    echo -e "$LOG_ERROR exit"
+    echo -e "$LOG_ERROR $Y$STAGE$D No command passed to the terraform container"
+    echo -e "$LOG_ERROR $Y$STAGE$D exit"
     exit 1
   fi
 
-  echo -e "$LOG_INFO Run terraform container with command '$@'"
-  docker run -it --rm \
-    --volume "/var/run/docker.sock:/var/run/docker.sock" \
-    --volume "$(pwd):$(pwd)" \
-    --workdir "$(pwd)" \
-    hashicorp/terraform:latest "$@"
-}
+  (
+    cd "$STAGE" || exit
+    echo -e "$LOG_INFO $Y$STAGE$D Run terraform container"
 
-
-# @description Print help.
-#
-# @example
-#    echo "test: $(help)"
-function help() {
-  echo -e "$LOG_INFO Terraform wrapper for this configuration"
-  echo -e "$LOG_INFO Available commands"
-  echo -e "$LOG_INFO   start"
-  echo -e "$LOG_INFO   stop"
-  echo -e "$LOG_INFO   update"
-  echo -e "$LOG_INFO   show"
-  echo -e "$LOG_INFO   plan"
-  echo -e "$LOG_INFO   validate"
-  echo -e "$LOG_INFO   help"
-
-  echo -e "$LOG_INFO Terraform version"
-  tf -version
-
-  echo -e "$LOG_INFO Terraform help"
-  tf -help
+    docker run -it --rm \
+      --volume "/var/run/docker.sock:/var/run/docker.sock" \
+      --volume "$SSH_AUTH_SOCK:$SSH_AUTH_SOCK" \
+      --volume "$HOME/.ssh/digitalocean_droplets.key:/root/.ssh/digitalocean_droplets.key" \
+      --volume "$(pwd):$(pwd)" \
+      --workdir "$(pwd)" \
+      hashicorp/terraform:latest "$@"
+  )
 }
 
 
@@ -68,9 +66,15 @@ function help() {
 # @example
 #    echo "test: $(start)"
 function start() {
-  echo -e "$LOG_INFO Startup this configuration"
+  echo -e "$LOG_INFO $Y$STAGE$D Startup this configuration"
   tf init
-  tf apply -auto-approve
+
+  if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
+    token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
+    tf apply -auto-approve -var=do_token="$token"
+  else
+    tf apply -auto-approve
+  fi
 }
 
 
@@ -79,12 +83,21 @@ function start() {
 # @example
 #    echo "test: $(stop)"
 function stop() {
-  echo -e "$LOG_INFO Shutdown this configuration"
-  tf destroy -auto-approve
+  echo -e "$LOG_INFO $Y$STAGE$D Shutdown this configuration"
+  if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
+    token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
+    tf destroy -auto-approve -var=do_token="$token"
+  else
+    tf destroy -auto-approve
+  fi
 
-  echo -e "$LOG_INFO Cleanup local filesystem"
-  rm -rf .terraform*
-  rm -rf *.tfstate*
+  (
+    cd "$STAGE" || exit
+
+    echo -e "$LOG_INFO $Y$STAGE$D Cleanup local filesystem"
+    rm -rf .terraform*
+    rm -rf -- *.tfstate*
+  )
 }
 
 
@@ -93,20 +106,46 @@ function stop() {
 # @example
 #    echo "test: $(update)"
 function update() {
-  echo -e "$LOG_INFO Update this configuration"
-  tf apply -auto-approve
+  echo -e "$LOG_INFO $Y$STAGE$D Update this configuration"
+  if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
+    token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
+    tf apply -auto-approve -var=do_token="$token"
+  else
+    tf apply -auto-approve
+  fi
 }
 
 
+# @description Update this configuration by running ``terraform apply``.
+#
+# @example
+#    echo "test: $(plan)"
+function plan() {
+  echo -e "$LOG_INFO $Y$STAGE$D Plan this configuration"
+  if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
+    token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
+    tf plan -var=do_token="$token"
+  else
+    tf plan
+  fi
+}
+
+
+echo -e "$LOG_INFO Select stage"
+select dir in localhost "$DIGITAL_OCEAN_DIR"; do
+  STAGE="$dir"
+  break
+done
+
+
 echo -e "$LOG_INFO Select action"
-select choice in start stop update show plan validate help; do
-  case "$choice" in
-    start ) start; break;;
+select action in start stop update show plan validate; do
+  case "$action" in
+    start ) start;  break;;
     stop ) stop; break;;
     update ) update; break;;
-    plan ) tf plan; break;;
+    plan ) plan; break;;
     show ) tf show; break;;
     validate ) tf validate; break;;
-    help ) help; break;;
   esac
 done
