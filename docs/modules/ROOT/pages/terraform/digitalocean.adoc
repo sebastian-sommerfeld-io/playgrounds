@@ -61,33 +61,32 @@ rectangle digitalocean {
             component nginx_2
         }
     }
-    component domain <<digitalocean_domain>>
+    component domain as "playground.cloud.sommerfeld.io" <<digitalocean_domain>>
     component loadbalancer <<digitalocean_loadbalancer>>
-    'component cname as "playground" <<digitalocean_record>>
+    file ssl_cert_2 as "SSL Cert"
 }
 
-file url as "playground.cloud.sommerfeld.io"
-'file ssl_cert
-
-rectangle domain_host <<some_service_provider>>
+rectangle domain_provider {
+    file url as "playground.cloud.sommerfeld.io"
+    file ssl_cert_1 as "SSL Cert"
+}
 cloud internet
 
-domain_host -right-> internet: http
-internet -right-> domain: http
-domain -right-> loadbalancer
-loadbalancer -> droplets
+url -right-> internet: https
+internet -right-> domain: https
+domain -right-> loadbalancer: https
+loadbalancer -> droplets: http
 
 www_1 -[hidden]down-> www_2
 
-domain_host ~down~ url
-domain ~down~ url
-'domain_host ~down~ ssl_cert
-'cname -up-> domain
+ssl_cert_1 ~up~> url
+ssl_cert_2 ~up~> domain
+
+note top of domain_provider: Manually managed
+note top of digitalocean: Managed by Terraform
 
 @enduml
 ----
-
-NOTE: Communication takes place via HTTP. For HTTPS, you have to configure ssl at your domain providers management console and expose HTTPS services in your application.
 
 == Prerequisites
 To complete this tutorial, you'll need:
@@ -517,7 +516,12 @@ To test if the domain- and DNS-settings work, run `tracepath playground.cloud.so
 
 The last IP address should match the IP from your load balancer. Now n  avigate to your domain name and you'll see an Nginx welcome screen because the domain is pointing to the Load Balancer, which is sending traffic to one of the two Nginx servers.
 
-== Step 8 - Destroying Your Infrastructure
+== Step 8 - Configure HTTPS
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+CAUTION: todo ... text plus diagram
+
+== Step 9 - Destroying Your Infrastructure
 Although not commonly used in production environments, Terraform can also destroy infrastructure that it created. This is mainly useful in development environments that are deployed and destroyed multiple times.
 
 [source, bash]
