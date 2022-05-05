@@ -134,6 +134,7 @@ function plan() {
 echo -e "$LOG_INFO Select stage"
 select dir in localhost "$DIGITAL_OCEAN_DIR"; do
   STAGE="$dir"
+  echo -e "$LOG_INFO $Y$STAGE$D selected"
   break
 done
 
