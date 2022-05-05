@@ -11,7 +11,7 @@ variable "do_token" {}
 
 variable "pvt_key" {
   type = string
-  default = "/root/.ssh/digitalocean_droplets.key" # path inside docker container
+  default = "/root/.ssh/digitalocean_droplets.key" # path inside the docker container that runs terraform cli
 }
 
 provider "digitalocean" {
