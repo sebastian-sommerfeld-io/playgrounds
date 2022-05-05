@@ -1,5 +1,5 @@
-resource "digitalocean_loadbalancer" "www-lb" {
-  name = "www-lb"
+resource "digitalocean_loadbalancer" "playground-lb" {
+  name = "playground-lb"
   region = "fra1"
 
   forwarding_rule {
@@ -15,5 +15,5 @@ resource "digitalocean_loadbalancer" "www-lb" {
     protocol = "tcp"
   }
 
-  droplet_ids = [digitalocean_droplet.www-1.id, digitalocean_droplet.www-2.id ]
+  droplet_ids = [digitalocean_droplet.playground-www-1.id, digitalocean_droplet.playground-www-2.id ]
 }
