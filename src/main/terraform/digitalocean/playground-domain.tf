@@ -11,6 +11,6 @@
 #}
 
 resource "digitalocean_domain" "cloud" {
-  name = "playground.cloud.sommerfeld.io"
+  name       = "playground.cloud.sommerfeld.io"
   ip_address = digitalocean_loadbalancer.playground-lb.ip
 }
