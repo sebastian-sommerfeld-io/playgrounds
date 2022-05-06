@@ -14,6 +14,11 @@ variable "pvt_key" {
   default = "/root/.ssh/digitalocean_droplets.key" # path inside the docker container that runs terraform cli
 }
 
+variable "domain_fqdn" {
+  type    = string
+  default = "playground.cloud.sommerfeld.io"
+}
+
 provider "digitalocean" {
   token = var.do_token
 }

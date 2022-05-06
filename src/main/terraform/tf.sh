@@ -211,7 +211,7 @@ done
 
 
 echo -e "$LOG_INFO Select action"
-select action in start stop update show plan validate graph; do
+select action in start stop update show plan validate graph init; do
   case "$action" in
     start ) start;  break;;
     stop ) stop; break;;
@@ -220,5 +220,6 @@ select action in start stop update show plan validate graph; do
     show ) tf show; break;;
     validate ) validate; break;;
     graph ) graph; break;;
+    init ) tf init; break;;
   esac
 done

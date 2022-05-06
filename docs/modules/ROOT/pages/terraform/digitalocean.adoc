@@ -518,9 +518,74 @@ To test if the domain- and DNS-settings work, run `tracepath playground.cloud.so
 The last IP address should match the IP from your load balancer. Now n  avigate to your domain name and you'll see an Nginx welcome screen because the domain is pointing to the Load Balancer, which is sending traffic to one of the two Nginx servers.
 
 == Step 8 - Configure HTTPS
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+To use HTTPS first you have to decide whether you want to use SSL termination or SSL passthrough. In this tutorial we use link:https://docs.digitalocean.com/products/networking/load-balancers/how-to/ssl-termination[SSL termination].
 
-CAUTION: todo ... text plus diagram
+To avoid duplicate entries, define a variable which holds your domain name and add this to your `playground-provider.tf`:
+
+[source, hcl-terraform]
+----
+# ...
+
+variable "domain_fqdn" {
+  type    = string
+  default = "playground.cloud.sommerfeld.io"
+}
+----
+
+Next, update your `playgroiund-domain.tf` to pick up this domain name variable:
+
+[source, hcl-terraform]
+----
+resource "digitalocean_domain" "cloud" {
+  name       = var.domain_fqdn
+  ip_address = digitalocean_loadbalancer.playground-lb.ip
+}
+----
+
+Then configure a certificate from link:https://letsencrypt.org[let's encrypt]. To do this you have to add a "digitalocean_certificate" to your `playground-loadbalancer.tf`. Next the load balancer must accept incoming HTTPS connections. So set `entry_port = 443` and `entry_protocol = "https"` plus link the certificate via the `certificate_name` option.
+
+The complete `playground-loadbalancer.tf` now looks like this:
+
+[source, hcl-terraform]
+----
+resource "digitalocean_certificate" "cert" {
+  name = "playground-cert" # when cert expires, do I need a new name here?
+  type = "lets_encrypt"
+  #domains = [digitalocean_domain.cloud.name]
+  domains = [var.domain_fqdn]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "digitalocean_loadbalancer" "playground-lb" {
+  name   = "playground-lb"
+  region = "fra1"
+
+  forwarding_rule {
+    entry_port       = 443
+    entry_protocol   = "https"
+    target_port      = 80
+    target_protocol  = "http"
+    certificate_name = digitalocean_certificate.cert.name
+  }
+
+  healthcheck {
+    port     = 22
+    protocol = "tcp"
+  }
+
+  droplet_ids = [digitalocean_droplet.playground-www-1.id, digitalocean_droplet.playground-www-2.id]
+}
+----
+
+Apply your configuration by running:
+
+[source, bash]
+----
+terraform apply -var="do_token=<THE_DIGITAL_OCEAN_API_TOKEN>"
+----
 
 == Step 9 -  Generate Graph for the current Configuration
 For documentation purposes you can generate a Graphviz Dot definition of the current terraform configuration by running `terraform graph`. Take a look at https://www.terraform.io/cli/commands/graph#generating-images to see how to convert this diagram definition into an image.
@@ -538,6 +603,8 @@ echo "$diagram" | docker run -i --rm \
 The result looks like this:
 
 image:terraform/generated/terraform-graph-digitalocean.png[]
+
+This is the actual graph from the configuration you set up by following this tutorial.
 
 == Step 10 - Destroying Your Infrastructure
 Although not commonly used in production environments, Terraform can also destroy infrastructure that it created. This is mainly useful in development environments that are deployed and destroyed multiple times.
