@@ -55,10 +55,10 @@ skinparam activity {
 
 rectangle digitalocean {
     rectangle droplets {
-        component www_1 as "playground-www1" <<digitalocean_droplet>> {
+        component www_1 as "playground-www-1" <<digitalocean_droplet>> {
             component nginx_1
         }
-        component www_2 as "playground-www2" <<digitalocean_droplet>> {
+        component www_2 as "playground-www-2" <<digitalocean_droplet>> {
             component nginx_2
         }
     }
@@ -205,13 +205,13 @@ When you're done, save and close the file. Terraform is now able to configure an
 == Step 3 - Defining the First Nginx Server
 You can use Terraform to create a DigitalOcean Droplet and install software on the Droplet once it spins up. In this step, you'll provision a single Ubuntu 20.04 Droplet and install the Nginx web server using Terraform.
 
-Create a new Terraform configuration file called `playground-www1.tf`, which will hold the configuration for the Droplet:
+Create a new Terraform configuration file called `playground-www-1.tf`, which will hold the configuration for the Droplet:
 
 [source, hcl-terraform]
 ----
-resource "digitalocean_droplet" "playground-www1" {
+resource "digitalocean_droplet" "playground-www-1" {
     image = "ubuntu-20-04-x64"
-    name = "playground-www1"
+    name = "playground-www-1"
     region = "fra1"
     size = "s-1vcpu-1gb"
     ssh_keys = [
@@ -219,7 +219,7 @@ resource "digitalocean_droplet" "playground-www1" {
     ]
 ----
 
-In the preceding configuration, the first line defines a _digitalocean_droplet_ resource named `playground-www1`. The rest of the lines specify the Droplet's attributes, including the data center it will be residing in and the slug that identifies the size of the Droplet you want to configure. In this case you're using `s-1vcpu-1gb`, which will create a Droplet with one CPU and 1GB of RAM. (Visit link:https://slugs.do-api.dev[this size slug chart] to see the available slugs you can use.)
+In the preceding configuration, the first line defines a _digitalocean_droplet_ resource named `playground-www-1`. The rest of the lines specify the Droplet's attributes, including the data center it will be residing in and the slug that identifies the size of the Droplet you want to configure. In this case you're using `s-1vcpu-1gb`, which will create a Droplet with one CPU and 1GB of RAM. (Visit link:https://slugs.do-api.dev[this size slug chart] to see the available slugs you can use.)
 
 The `ssh_keys` section specifies a list of public keys you want to add to the Droplet. In this case you're specifying the key you defined in `playground-provider.tf`. Ensure the name here matches the name you specified in `playground-provider.tf`.
 
@@ -266,9 +266,9 @@ The completed file looks like this:
 
 [source, hcl-terraform]
 ----
-resource "digitalocean_droplet" "playground-www1" {
+resource "digitalocean_droplet" "playground-www-1" {
   image = "ubuntu-20-04-x64"
-  name = "playground-www1"
+  name = "playground-www-1"
   region = "fra1"
   size = "s-1vcpu-1gb"
   ssh_keys = [
@@ -316,8 +316,8 @@ OutputTerraform used the selected providers to generate the following execution 
 
 Terraform will perform the following actions:
 
-  # digitalocean_droplet.playground-www1 will be created
-  + resource "digitalocean_droplet" "playground-www1" {
+  # digitalocean_droplet.playground-www-1 will be created
+  + resource "digitalocean_droplet" "playground-www-1" {
       + backups              = false
       + created_at           = (known after apply)
       + disk                 = (known after apply)
@@ -331,7 +331,7 @@ Terraform will perform the following actions:
       + locked               = (known after apply)
       + memory               = (known after apply)
       + monitoring           = false
-      + name                 = "playground-www1"
+      + name                 = "playground-www-1"
       + price_hourly         = (known after apply)
       + price_monthly        = (known after apply)
       + private_networking   = (known after apply)
@@ -355,7 +355,7 @@ Plan: 1 to add, 0 to change, 0 to destroy.
 Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions if you run "terraform apply" now.
 ----
 
-The + resource "digitalocean_droplet" "playground-www1" line means that Terraform will create a new Droplet resource called playground-www1, with the details that follow it. That's exactly what should happen, so run terraform apply command to execute the current plan.
+The + resource "digitalocean_droplet" "playground-www-1" line means that Terraform will create a new Droplet resource called playground-www-1, with the details that follow it. That's exactly what should happen, so run terraform apply command to execute the current plan.
 
 [source, bash]
 ----
@@ -367,7 +367,7 @@ Terraform will provision your Droplet:
 [source, text]
 ----
 Output
-digitalocean_droplet.playground-www1: Creating...
+digitalocean_droplet.playground-www-1: Creating...
 ----
 
 After a bit of time, you'll see Terraform installing Nginx with `the remote-exec` provisioner, and then the process will complete:
@@ -376,17 +376,17 @@ After a bit of time, you'll see Terraform installing Nginx with `the remote-exec
 ----
 Output
 
-digitalocean_droplet.playground-www1: Provisioning with 'remote-exec'...
+digitalocean_droplet.playground-www-1: Provisioning with 'remote-exec'...
 
 ....
 
-digitalocean_droplet.playground-www1: Creation complete after 1m54s [id=your_playground-www1_droplet_id]
+digitalocean_droplet.playground-www-1: Creation complete after 1m54s [id=your_playground-www-1_droplet_id]
 
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ...
 ----
 
-Terraform has created a new Droplet called playground-www1 and installed Nginx on it. If you visit the public IP address of your new Droplet, you'll see the Nginx welcome screen. The public IP was displayed when the Droplet was created, but you can always view it by looking at Terraform's current state. Terraform updates the state file terraform.tfstate every time it executes a plan or refreshes its state.
+Terraform has created a new Droplet called playground-www-1 and installed Nginx on it. If you visit the public IP address of your new Droplet, you'll see the Nginx welcome screen. The public IP was displayed when the Droplet was created, but you can always view it by looking at Terraform's current state. Terraform updates the state file terraform.tfstate every time it executes a plan or refreshes its state.
 
 [NOTE]
 ====
@@ -403,11 +403,11 @@ In this step, you've deployed the Droplet that you've described in Terraform. Yo
 == Step 5 - Creating the Second Nginx Server
 Now that you have described an Nginx server, you can add a second quickly by copying the existing server's configuration file and replacing the name and hostname of the Droplet resource.
 
-You can do this manually, but it's faster to use the `sed` command to read the `playground-www1.tf` file, substitute all instances of `playground-www1` with `playground-www2`, and create a new file called `playground-www2.tf`. Here is the `sed` command to do that:
+You can do this manually, but it's faster to use the `sed` command to read the `playground-www-1.tf` file, substitute all instances of `playground-www-1` with `playground-www-2`, and create a new file called `playground-www-2.tf`. Here is the `sed` command to do that:
 
 [source, bash]
 ----
-sed 's/playground-www1/playground-www2/g' playground-www1.tf > playground-www2.tf
+sed 's/playground-www-1/playground-www-2/g' playground-www-1.tf > playground-www-2.tf
 ----
 
 Run `terraform plan` again to preview the changes that Terraform will make.
@@ -417,7 +417,7 @@ Run `terraform apply` again to create the second Droplet. After some time, Terra
 [source, text]
 ----
 Output
-digitalocean_droplet.playground-www2: Creation complete after 1m47s [id=your_playground-www2_droplet_id]
+digitalocean_droplet.playground-www-2: Creation complete after 1m47s [id=your_playground-www-2_droplet_id]
 ...
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 ----
@@ -450,7 +450,7 @@ resource "digitalocean_loadbalancer" "playground-lb" {
     protocol = "tcp"
   }
 
-  droplet_ids = [digitalocean_droplet.playground-www1.id, digitalocean_droplet.playground-www2.id ]
+  droplet_ids = [digitalocean_droplet.playground-www-1.id, digitalocean_droplet.playground-www-2.id ]
 }
 ----
 

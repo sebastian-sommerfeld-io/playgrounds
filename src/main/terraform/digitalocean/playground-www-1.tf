@@ -1,6 +1,6 @@
-resource "digitalocean_droplet" "playground-www2" {
+resource "digitalocean_droplet" "playground-www-1" {
   image  = "ubuntu-20-04-x64"
-  name   = "playground-www2"
+  name   = "playground-www-1"
   region = "fra1"
   size   = "s-1vcpu-1gb"
   ssh_keys = [
