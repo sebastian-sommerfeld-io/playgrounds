@@ -15,5 +15,5 @@ resource "digitalocean_loadbalancer" "playground-lb" {
     protocol = "tcp"
   }
 
-  droplet_ids = [digitalocean_droplet.playground-www-1.id, digitalocean_droplet.playground-www-2.id]
+  droplet_ids = [digitalocean_droplet.playground-www1.id, digitalocean_droplet.playground-www2.id]
 }

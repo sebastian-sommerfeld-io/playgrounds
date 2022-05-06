@@ -48,7 +48,6 @@ function tf() {
 
   (
     cd "$STAGE" || exit
-    echo -e "$LOG_INFO $Y$STAGE$D Run terraform container"
 
     docker run -it --rm \
       --volume "/var/run/docker.sock:/var/run/docker.sock" \
@@ -70,11 +69,17 @@ function start() {
   tf init
 
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
+    validate
+
     token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
     tf apply -auto-approve -var=do_token="$token"
   else
+    validate
+
     tf apply -auto-approve
   fi
+
+  graph
 }
 
 
@@ -108,11 +113,17 @@ function stop() {
 function update() {
   echo -e "$LOG_INFO $Y$STAGE$D Update this configuration"
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
+    validate
+
     token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
     tf apply -auto-approve -var=do_token="$token"
   else
+    validate
+
     tf apply -auto-approve
   fi
+
+  graph
 }
 
 
@@ -123,10 +134,70 @@ function update() {
 function plan() {
   echo -e "$LOG_INFO $Y$STAGE$D Plan this configuration"
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
+    validate
+
     token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
     tf plan -var=do_token="$token"
   else
+    validate
+
     tf plan
+  fi
+
+  graph
+}
+
+
+# @description Validate this configuration by running ``terraform validate`` and apply consistent format to all .tf
+# files by running ``terraform fmt -recursive``.
+#
+# @example
+#    echo "test: $(validate)"
+function validate() {
+  echo -e "$LOG_INFO $Y$STAGE$D Validate this configuration and apply consistent format to all .tf files"
+  tf validate && tf fmt -recursive
+}
+
+
+# @description Generate diagram by running ``terraform graph`` and add this diagram to the documentation.
+#
+# @example
+#    echo "test: $(graph)"
+function graph() {
+  echo -e "$LOG_INFO $Y$STAGE$D Generate graph for this configuration"
+  if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
+    DIAGRAM_FILENAME="terraform-graph-$STAGE.png"
+
+    echo -e "$LOG_INFO $Y$STAGE$D Generate diagram specs"
+    diagram=$(tf graph)
+
+    echo -e "$LOG_INFO $Y$STAGE$D Prettify diagram"
+    PRETTY=$(echo "$diagram" | docker run -i --rm \
+      --volume "$(pwd):$(pwd)" \
+      --workdir "$(pwd)" \
+      pegasus/tf-graph-beautifier:latest terraform-graph-beautifier --exclude="module.root.provider" --output-type=graphviz)
+
+    echo -e "$LOG_INFO $Y$STAGE$D Generate diagram image"
+    echo "$PRETTY" | docker run -i --rm \
+      --volume "$(pwd):$(pwd)" \
+      --workdir "$(pwd)" \
+      nshine/dot:latest > "$DIAGRAM_FILENAME"
+
+    (
+      cd ../../../ || exit
+
+      ANTORA_DIR="docs/modules/ROOT/assets/images/terraform/generated"
+
+      echo -e "$LOG_INFO $Y$STAGE$D Move diagram to antora module"
+      mv "src/main/terraform/$DIAGRAM_FILENAME" "$ANTORA_DIR/$DIAGRAM_FILENAME"
+
+      echo -e "$LOG_INFO $Y$STAGE$D Add diagram to git repo"
+      git add "$ANTORA_DIR/$DIAGRAM_FILENAME"
+    )
+
+  else
+    echo -e "$LOG_WARN No implementation for configurations other that $DIGITAL_OCEAN_DIR yet"
+    echo -e "$LOG_WARN Graph creation skipped"
   fi
 }
 
@@ -147,7 +218,7 @@ select action in start stop update show plan validate graph; do
     update ) update; break;;
     plan ) plan; break;;
     show ) tf show; break;;
-    validate ) tf validate; break;;
-    graph ) tf graph; break;;
+    validate ) validate; break;;
+    graph ) graph; break;;
   esac
 done
