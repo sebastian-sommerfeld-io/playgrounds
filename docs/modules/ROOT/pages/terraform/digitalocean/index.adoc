@@ -117,7 +117,6 @@ Terraform configurations are text files that end with the `.tf` file extension. 
 The first step to building an infrastructure with Terraform is to define the provider you're going to use.
 
 To use the DigitalOcean provider with Terraform, you have to tell Terraform about it and configure the plugin with the proper credential variables. Create a file called `playground-provider.tf` in `src/main/terraform/digitalocean`, which will store the configuration for the provider:
-
 [source, hcl-terraform]
 ----
 terraform {
@@ -133,7 +132,6 @@ terraform {
 The API token is read from a secrets file which is not committed to the remote repo. The token is passed  to terraform via `terraform apply -auto-approve -var="do_token=<THE_DIGITAL_OCEAN_API_TOKEN>"` (see `link:https://github.com/sebastian-sommerfeld-io/playgrounds/blob/main/src/main/terraform/tf.sh[tf.sh]`). The var-name "do_token" must match the variable from `playground-provider.tf`.
 
 Then, add these lines to configure the DigitalOcean provider and specify the credentials for your DigitalOcean account by assigning the do_token to the token argument of the provider:
-
 [source, hcl-terraform]
 ----
 # ...
@@ -151,7 +149,6 @@ provider "digitalocean" {
 ----
 
 Finally, you'll want to have Terraform automatically add your SSH key to any new Droplets you create. When you added your SSH key to DigitalOcean, you gave it a name. Terraform can use this name to retrieve the public key.
-
 [source, hcl-terraform]
 ----
 # ...
@@ -162,7 +159,6 @@ data "digitalocean_ssh_key" "terraform" {
 ----
 
 Your completed `playground-provider.tf` file will look like this:
-
 [source, hcl-terraform]
 ----
 terraform {
@@ -197,7 +193,6 @@ output "password1" {
 output "password2" {
   value = var.do_token
 }
-
 ----
 
 When you're done, save and close the file. Terraform is now able to configure and can connect to your DigitalOcean account. In the next step, you'll use Terraform to define a Droplet that will run an Nginx server.
@@ -206,7 +201,6 @@ When you're done, save and close the file. Terraform is now able to configure an
 You can use Terraform to create a DigitalOcean Droplet and install software on the Droplet once it spins up. In this step, you'll provision a single Ubuntu 20.04 Droplet and install the Nginx web server using Terraform.
 
 Create a new Terraform configuration file called `playground-www-1.tf`, which will hold the configuration for the Droplet:
-
 [source, hcl-terraform]
 ----
 resource "digitalocean_droplet" "playground-www-1" {
@@ -228,7 +222,6 @@ When you run Terraform against the DigitalOcean API, it will collect a variety o
 If you are wondering which arguments are required or optional for a Droplet resource, please refer to the official Terraform documentation: link:http://www.terraform.io/docs/providers/do/r/droplet[DigitalOcean Droplet Specification].
 
 To set up a `connection` that Terraform can use to connect to the server via SSH, add the following lines at the end of the file:
-
 [source, hcl-terraform]
 ----
 # ...
@@ -245,7 +238,6 @@ To set up a `connection` that Terraform can use to connect to the server via SSH
 These lines describe how Terraform should connect to the server, so Terraform can connect over SSH to install Nginx. Note the use of the private key variable `var.pvt_key` - you'll pass its value in when you run Terraform.
 
 Now that you have the connection set up, configure the `remote-exec` provisioner, which you'll use to install Nginx. Add the following lines to the configuration to do just that:
-
 [source, hcl-terraform]
 ----
 # ...
@@ -263,7 +255,6 @@ Now that you have the connection set up, configure the `remote-exec` provisioner
 Note that the strings in the inline array are the commands that the root user will run to install Nginx.
 
 The completed file looks like this:
-
 [source, hcl-terraform]
 ----
 resource "digitalocean_droplet" "playground-www-1" {
@@ -299,7 +290,6 @@ Save the file and exit the editor. You've defined the server, and are ready to d
 Your current Terraform configuration describes a single Nginx server. You'll now deploy the Droplet exactly as it's defined.
 
 Run the `terraform plan` command to see the _execution plan_, or what Terraform will attempt to do to build the infrastructure you described. You will have to specify the values for your DigitalOcean Access Token and the path to your private key, as your configuration uses this information to access your Droplet to install Nginx. Run the following command to create a plan:
-
 [source, bash]
 ----
 terraform plan -var="do_token=<THE_DIGITAL_OCEAN_API_TOKEN>"
@@ -308,7 +298,6 @@ terraform plan -var="do_token=<THE_DIGITAL_OCEAN_API_TOKEN>"
 CAUTION: The terraform plan command supports an -out parameter to save the plan. However, the plan will store API keys, and Terraform does not encrypt this data. When using this option, you should explore encrypting this file if you plan to send it to others or leave it at rest for an extended period of time.
 
 You'll see output similar to this:
-
 [source, text]
 ----
 OutputTerraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
@@ -356,14 +345,12 @@ Note: You didn't use the -out option to save this plan, so Terraform can't guara
 ----
 
 The + resource "digitalocean_droplet" "playground-www-1" line means that Terraform will create a new Droplet resource called playground-www-1, with the details that follow it. That's exactly what should happen, so run terraform apply command to execute the current plan.
-
 [source, bash]
 ----
 terraform apply -var="do_token=<THE_DIGITAL_OCEAN_API_TOKEN>"
 ----
 
 Terraform will provision your Droplet:
-
 [source, text]
 ----
 Output
@@ -371,7 +358,6 @@ digitalocean_droplet.playground-www-1: Creating...
 ----
 
 After a bit of time, you'll see Terraform installing Nginx with `the remote-exec` provisioner, and then the process will complete:
-
 [source, text]
 ----
 Output
@@ -404,7 +390,6 @@ In this step, you've deployed the Droplet that you've described in Terraform. Yo
 Now that you have described an Nginx server, you can add a second quickly by copying the existing server's configuration file and replacing the name and hostname of the Droplet resource.
 
 You can do this manually, but it's faster to use the `sed` command to read the `playground-www-1.tf` file, substitute all instances of `playground-www-1` with `playground-www-2`, and create a new file called `playground-www-2.tf`. Here is the `sed` command to do that:
-
 [source, bash]
 ----
 sed 's/playground-www-1/playground-www-2/g' playground-www-1.tf > playground-www-2.tf
@@ -413,7 +398,6 @@ sed 's/playground-www-1/playground-www-2/g' playground-www-1.tf > playground-www
 Run `terraform plan` again to preview the changes that Terraform will make.
 
 Run `terraform apply` again to create the second Droplet. After some time, Terraform will create the new server and display the results.
-
 [source, text]
 ----
 Output
@@ -430,7 +414,6 @@ Now that you have two Droplets running Nginx, you'll define and deploy a load ba
 You'll use a link:https://www.digitalocean.com/products/load-balancer[DigitalOcean Load Balancer], which the official Terraform provider supports, to route traffic between the two web servers.
 
 Create a new Terraform configuration file called `playground-loadbalancer.tf`:
-
 [source, hcl-terraform]
 ----
 resource "digitalocean_loadbalancer" "playground-lb" {
@@ -470,7 +453,6 @@ You'll now learn how to configure DNS for your DigitalOcean account using Terraf
 In addition to Droplets and Load Balancers, Terraform can also create DNS domain and record domains. For example, if you want to point your domain to your Load Balancer, you can write the configuration describing that relationship.
 
 Create a new file `playground-domain.tf` to describe your DNS:
-
 [source, hcl-terraform]
 ----
 resource "digitalocean_domain" "cloud" {
@@ -490,7 +472,6 @@ image:terraform/dns-settings.png[]
 image:terraform/domain.png[]
 
 To test if the domain- and DNS-settings work, run `tracepath playground.cloud.sommerfeld.io`. You will get something like this:
-
 [source, text]
 ----
 1?: [LOCALHOST]                      pmtu 1500
@@ -518,47 +499,62 @@ To test if the domain- and DNS-settings work, run `tracepath playground.cloud.so
 The last IP address should match the IP from your load balancer. Now n  avigate to your domain name and you'll see an Nginx welcome screen because the domain is pointing to the Load Balancer, which is sending traffic to one of the two Nginx servers.
 
 == Step 8 - Configure HTTPS
-To use HTTPS first you have to decide whether you want to use SSL termination or SSL passthrough. In this tutorial we use link:https://docs.digitalocean.com/products/networking/load-balancers/how-to/ssl-termination[SSL termination].
+The xref:ROOT:terraform/digitalocean/step-8-https-config-broken.adoc[first attempt to set up HTTPS] did not use the ACME provider and did not work properly. So I turned to the link:https://registry.terraform.io/providers/vancluever/acme/latest/docs[Terraform ACME provider].
 
-To avoid duplicate entries, define a variable which holds your domain name and add this to your `playground-provider.tf`:
+The Automated Certificate Management Environment (ACME) is an evolving standard for the automation of a domain-validated certificate authority. Clients register themselves on an authority using a private key and contact information, and answer challenges for domains that they own by supplying response data issued by the authority via either HTTP or DNS. Via this process, they prove that they own the domains in question, and can then request certificates for them via the CA. No part of this process requires user interaction, a traditional blocker in obtaining a domain validated certificate.
 
+Currently, the major ACME CA is link:https://letsencrypt.org[Let's Encrypt], but the ACME support in Terraform can be configured to use any ACME CA, including an internal one that is set up using link:https://github.com/letsencrypt/boulder[Boulder]. For more detail on the ACME process, see link:https://letsencrypt.org/how-it-works[here]. For the ACME spec, click link:https://ietf-wg-acme.github.io/acme/draft-ietf-acme-acme.html[here].
+
+Add the ACME provider to your `playground-provider.tf`:
 [source, hcl-terraform]
 ----
-# ...
+terraform {
+  required_providers {
+    # ...
 
-variable "domain_fqdn" {
-  type    = string
-  default = "playground.cloud.sommerfeld.io"
-}
-----
-
-Next, update your `playgroiund-domain.tf` to pick up this domain name variable:
-
-[source, hcl-terraform]
-----
-resource "digitalocean_domain" "cloud" {
-  name       = var.domain_fqdn
-  ip_address = digitalocean_loadbalancer.playground-lb.ip
-}
-----
-
-Then configure a certificate from link:https://letsencrypt.org[let's encrypt]. To do this you have to add a "digitalocean_certificate" to your `playground-loadbalancer.tf`. Next the load balancer must accept incoming HTTPS connections. So set `entry_port = 443` and `entry_protocol = "https"` plus link the certificate via the `certificate_name` option.
-
-The complete `playground-loadbalancer.tf` now looks like this:
-
-[source, hcl-terraform]
-----
-resource "digitalocean_certificate" "cert" {
-  name = "playground-cert" # when cert expires, do I need a new name here?
-  type = "lets_encrypt"
-  #domains = [digitalocean_domain.cloud.name]
-  domains = [var.domain_fqdn]
-
-  lifecycle {
-    create_before_destroy = true
+    acme = {
+      source  = "vancluever/acme"
+      version = "~> 2.0"
+    }
   }
 }
 
+provider "acme" {
+  server_url = "https://acme-v02.api.letsencrypt.org/directory"
+}
+----
+
+Next add a `playground-cert.tf` and add the following contents:
+[source, hcl-terraform]
+----
+resource "tls_private_key" "private_key" {
+  algorithm = "RSA"
+}
+
+resource "acme_registration" "reg" {
+  account_key_pem = tls_private_key.private_key.private_key_pem
+  email_address   = "sebastian@sommerfeld.io"
+}
+
+resource "acme_certificate" "certificate" {
+  account_key_pem           = acme_registration.reg.account_key_pem
+  common_name               = var.domain_fqdn
+  subject_alternative_names = [var.domain_fqdn]
+
+  dns_challenge {
+    provider = "digitalocean"
+    config = {
+      DO_AUTH_TOKEN = var.do_token
+    }
+  }
+}
+----
+
+Now you have to re-configure the load balancer so that ir accepts incoming HTTPS connections. So set `entry_port = 443` and `entry_protocol = "https"` plus link the certificate via the `certificate_name` option.
+
+The complete `playground-loadbalancer.tf` now looks like this:
+[source, hcl-terraform]
+----
 resource "digitalocean_loadbalancer" "playground-lb" {
   name   = "playground-lb"
   region = "fra1"
@@ -568,7 +564,7 @@ resource "digitalocean_loadbalancer" "playground-lb" {
     entry_protocol   = "https"
     target_port      = 80
     target_protocol  = "http"
-    certificate_name = digitalocean_certificate.cert.name
+    certificate_name = acme_certificate.certificate.common_name
   }
 
   healthcheck {
@@ -578,18 +574,11 @@ resource "digitalocean_loadbalancer" "playground-lb" {
 
   droplet_ids = [digitalocean_droplet.playground-www-1.id, digitalocean_droplet.playground-www-2.id]
 }
-----
 
-Apply your configuration by running:
-
-[source, bash]
-----
-terraform apply -var="do_token=<THE_DIGITAL_OCEAN_API_TOKEN>"
 ----
 
 == Step 9 -  Generate Graph for the current Configuration
 For documentation purposes you can generate a Graphviz Dot definition of the current terraform configuration by running `terraform graph`. Take a look at https://www.terraform.io/cli/commands/graph#generating-images to see how to convert this diagram definition into an image.
-
 [source, bash]
 ----
 diagram=$(terraform graph)
@@ -608,6 +597,8 @@ This is the actual graph from the configuration you set up by following this tut
 
 == Step 10 - Destroying Your Infrastructure
 Although not commonly used in production environments, Terraform can also destroy infrastructure that it created. This is mainly useful in development environments that are deployed and destroyed multiple times.
+
+CAUTION: todo ... remove cert with doctl first ...
 
 [source, bash]
 ----

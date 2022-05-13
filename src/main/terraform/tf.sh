@@ -29,6 +29,7 @@
 
 STAGE="n/a"
 DIGITAL_OCEAN_DIR="digitalocean"
+CERT_NAME="playground-cert"
 
 # @description Wrapper function to encapsulate the terraform docker container. The current working directory is mounted
 # into the container and selected as working directory so that all file are available to terraform. Paths are preserved.
@@ -91,6 +92,22 @@ function stop() {
   echo -e "$LOG_INFO $Y$STAGE$D Shutdown this configuration"
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
     token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
+
+    echo -e "$LOG_INFO $Y$STAGE$D Read all certificates with name and id from DigitalOcean using doctl"
+    certs=$(docker run --rm -it --env=DIGITALOCEAN_ACCESS_TOKEN="$token" digitalocean/doctl:latest compute certificate list --format ID,Name --no-header)
+
+    echo -e "$LOG_INFO $Y$STAGE$D Iterate certs"
+    while IFS= read -r line
+    do
+      if [[ "$line" == *"$CERT_NAME"* ]]; then
+        id="${line:0:36}"
+        echo -e "$LOG_INFO $Y$STAGE$D     Found target cert '$CERT_NAME' ... delette cert using doctl"
+        echo -e "$LOG_INFO $Y$STAGE$D     Cert info = $line"
+        echo -e "$LOG_INFO $Y$STAGE$D       Cert ID = $id"
+        docker run --rm -it --env=DIGITALOCEAN_ACCESS_TOKEN="$token" digitalocean/doctl:latest compute certificate delete --force "$id"
+      fi
+    done < <(printf '%s\n' "$certs")
+
     tf destroy -auto-approve -var=do_token="$token"
   else
     tf destroy -auto-approve
@@ -114,6 +131,8 @@ function update() {
   echo -e "$LOG_INFO $Y$STAGE$D Update this configuration"
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
     validate
+
+    # todo ... delete cert in update too????? or make shure cert gets a random name ??? delete the cert via domain_name, not internal name
 
     token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
     tf apply -auto-approve -var=do_token="$token"

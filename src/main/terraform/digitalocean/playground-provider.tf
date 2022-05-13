@@ -4,6 +4,11 @@ terraform {
       source  = "digitalocean/digitalocean"
       version = "~> 2.0"
     }
+
+    acme = {
+      source  = "vancluever/acme"
+      version = "~> 2.0"
+    }
   }
 }
 
@@ -25,4 +30,9 @@ provider "digitalocean" {
 
 data "digitalocean_ssh_key" "terraform" {
   name = "kobol-digitalocean-droplets"
+}
+
+provider "acme" {
+  server_url = "https://acme-v02.api.letsencrypt.org/directory"
+  #server_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
 }

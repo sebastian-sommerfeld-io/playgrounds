@@ -8,7 +8,6 @@
 #  type = "CNAME"
 #  name = "playground"
 #  value = "@"
-#}
 
 resource "digitalocean_domain" "cloud" {
   name       = var.domain_fqdn
