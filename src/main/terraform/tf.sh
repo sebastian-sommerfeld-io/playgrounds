@@ -42,8 +42,8 @@ CERT_NAME="playground-cert"
 # @exitcode 1 If param is missing
 function tf() {
   if [ -z "$1" ]; then
-    echo -e "$LOG_ERROR $Y$STAGE$D No command passed to the terraform container"
-    echo -e "$LOG_ERROR $Y$STAGE$D exit"
+    echo -e "$LOG_ERROR [$P$STAGE$D] No command passed to the terraform container"
+    echo -e "$LOG_ERROR [$P$STAGE$D] exit"
     exit 1
   fi
 
@@ -66,7 +66,7 @@ function tf() {
 # @example
 #    echo "test: $(start)"
 function start() {
-  echo -e "$LOG_INFO $Y$STAGE$D Startup this configuration"
+  echo -e "$LOG_INFO [$P$STAGE$D] Startup this configuration"
   tf init
 
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
@@ -89,21 +89,21 @@ function start() {
 # @example
 #    echo "test: $(stop)"
 function stop() {
-  echo -e "$LOG_INFO $Y$STAGE$D Shutdown this configuration"
+  echo -e "$LOG_INFO [$P$STAGE$D] Shutdown this configuration"
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
     token=$(cat "$DIGITAL_OCEAN_DIR/resources/.secrets/digitalocean.token")
 
-    echo -e "$LOG_INFO $Y$STAGE$D Read all certificates with name and id from DigitalOcean using doctl"
+    echo -e "$LOG_INFO [$P$STAGE$D] Read all certificates with name and id from DigitalOcean using doctl"
     certs=$(docker run --rm -it --env=DIGITALOCEAN_ACCESS_TOKEN="$token" digitalocean/doctl:latest compute certificate list --format ID,Name --no-header)
 
-    echo -e "$LOG_INFO $Y$STAGE$D Iterate certs"
+    echo -e "$LOG_INFO [$P$STAGE$D] Iterate certs"
     while IFS= read -r line
     do
       if [[ "$line" == *"$CERT_NAME"* ]]; then
         id="${line:0:36}"
-        echo -e "$LOG_INFO $Y$STAGE$D     Found target cert '$CERT_NAME' ... delette cert using doctl"
-        echo -e "$LOG_INFO $Y$STAGE$D     Cert info = $line"
-        echo -e "$LOG_INFO $Y$STAGE$D       Cert ID = $id"
+        echo -e "$LOG_INFO [$P$STAGE$D]     Found target cert '$CERT_NAME' ... delette cert using doctl"
+        echo -e "$LOG_INFO [$P$STAGE$D]     Cert info = $line"
+        echo -e "$LOG_INFO [$P$STAGE$D]       Cert ID = $id"
         docker run --rm -it --env=DIGITALOCEAN_ACCESS_TOKEN="$token" digitalocean/doctl:latest compute certificate delete --force "$id"
       fi
     done < <(printf '%s\n' "$certs")
@@ -116,7 +116,7 @@ function stop() {
   (
     cd "$STAGE" || exit
 
-    echo -e "$LOG_INFO $Y$STAGE$D Cleanup local filesystem"
+    echo -e "$LOG_INFO [$P$STAGE$D] Cleanup local filesystem"
     rm -rf .terraform*
     rm -rf -- *.tfstate*
   )
@@ -128,7 +128,7 @@ function stop() {
 # @example
 #    echo "test: $(update)"
 function update() {
-  echo -e "$LOG_INFO $Y$STAGE$D Update this configuration"
+  echo -e "$LOG_INFO [$P$STAGE$D] Update this configuration"
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
     validate
 
@@ -151,7 +151,7 @@ function update() {
 # @example
 #    echo "test: $(plan)"
 function plan() {
-  echo -e "$LOG_INFO $Y$STAGE$D Plan this configuration"
+  echo -e "$LOG_INFO [$P$STAGE$D] Plan this configuration"
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
     validate
 
@@ -173,7 +173,7 @@ function plan() {
 # @example
 #    echo "test: $(validate)"
 function validate() {
-  echo -e "$LOG_INFO $Y$STAGE$D Validate this configuration and apply consistent format to all .tf files"
+  echo -e "$LOG_INFO [$P$STAGE$D] Validate this configuration and apply consistent format to all .tf files"
   tf validate && tf fmt -recursive
 }
 
@@ -183,20 +183,20 @@ function validate() {
 # @example
 #    echo "test: $(graph)"
 function graph() {
-  echo -e "$LOG_INFO $Y$STAGE$D Generate graph for this configuration"
+  echo -e "$LOG_INFO [$P$STAGE$D] Generate graph for this configuration"
   if [ "$STAGE" = "$DIGITAL_OCEAN_DIR" ]; then
     DIAGRAM_FILENAME="terraform-graph-$STAGE.png"
 
-    echo -e "$LOG_INFO $Y$STAGE$D Generate diagram specs"
+    echo -e "$LOG_INFO [$P$STAGE$D] Generate diagram specs"
     diagram=$(tf graph)
 
-    echo -e "$LOG_INFO $Y$STAGE$D Prettify diagram"
+    echo -e "$LOG_INFO [$P$STAGE$D] Prettify diagram"
     PRETTY=$(echo "$diagram" | docker run -i --rm \
       --volume "$(pwd):$(pwd)" \
       --workdir "$(pwd)" \
       pegasus/tf-graph-beautifier:latest terraform-graph-beautifier --exclude="module.root.provider" --output-type=graphviz)
 
-    echo -e "$LOG_INFO $Y$STAGE$D Generate diagram image"
+    echo -e "$LOG_INFO [$P$STAGE$D] Generate diagram image"
     echo "$PRETTY" | docker run -i --rm \
       --volume "$(pwd):$(pwd)" \
       --workdir "$(pwd)" \
@@ -207,10 +207,10 @@ function graph() {
 
       ANTORA_DIR="docs/modules/ROOT/assets/images/terraform/generated"
 
-      echo -e "$LOG_INFO $Y$STAGE$D Move diagram to antora module"
+      echo -e "$LOG_INFO [$P$STAGE$D] Move diagram to antora module"
       mv "src/main/terraform/$DIAGRAM_FILENAME" "$ANTORA_DIR/$DIAGRAM_FILENAME"
 
-      echo -e "$LOG_INFO $Y$STAGE$D Add diagram to git repo"
+      echo -e "$LOG_INFO [$P$STAGE$D] Add diagram to git repo"
       git add "$ANTORA_DIR/$DIAGRAM_FILENAME"
     )
 
@@ -224,7 +224,7 @@ function graph() {
 echo -e "$LOG_INFO Select stage"
 select dir in localhost "$DIGITAL_OCEAN_DIR"; do
   STAGE="$dir"
-  echo -e "$LOG_INFO $Y$STAGE$D selected"
+  echo -e "$LOG_INFO [$P$STAGE$D] selected"
   break
 done
 
