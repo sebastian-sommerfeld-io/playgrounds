@@ -7,5 +7,5 @@ Playground, Sandboxes and Proof-of-Concept environments in Vagrantboxes and/or D
 |===
 |What |Where to find
 |Repository |{url-project}
-|Documentation |https://docs.sommerfeld.io/{project-name}-docs/main
+|Documentation |https://docs.cloud.sommerfeld.io/{project-name}-docs/main
 |===
