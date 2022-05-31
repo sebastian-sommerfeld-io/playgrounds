@@ -1,12 +1,15 @@
 #!/bin/bash
 # @file run-tests.sh
-# @brief Run Chef Inspec tests.
+# @brief Run Chef InSpec tests.
 #
-# @description The script runs Chef Inspec tests. Inspec runs inside a link:https://hub.docker.com/r/chef/inspec[Docker container (`chef/inspec`)].
+# @description The script runs Chef InSpec tests. InSpec runs inside a link:https://hub.docker.com/r/chef/inspec[Docker container (`chef/inspec`)].
+# The script can also initialize new InSpec profiles. To run all available test profiles, invoke this script without any
+# argument.
 #
 # ==== Arguments
 #
-# The script does not accept any parameters.
+# * *$1* (string): Pass "init" as param, to create a new InSpec profile (optional)
+# * *$2* (string): The name of the profile  (optional, but becomes mandatory, when $1 is not empty)
 
 
 SCRIPT_ARG_1="$1"
